@@ -1,0 +1,55 @@
+services:
+  nginx:
+    container_name: impala-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    build:
+      context: .
+      dockerfile: ./docker/nginx/Dockerfile
+    depends_on:
+      - java-eclipse
+    volumes:
+      - ./src/main/resources/static:/var/www/app/static
+  java-eclipse:
+    container_name: impala-java
+    ports:
+      - "9000:9000"
+      - "35729:35729"
+    build:
+      context: .
+      dockerfile: docker/java/Dockerfile
+    environment:
+      - SPRING_DEVTOOLS_RESTART_ENABLED=true
+      - SPRING_DEVTOOLS_LIVERELOAD_ENABLED=true
+    env_file:
+      - .env
+    volumes:
+      - ./:/var/www/app
+      - gradle_cache:/root/.gradle
+    depends_on:
+      - mysql
+  mysql:
+    container_name: impala-mysql
+    image: mysql:8.3.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data:/var/lib/mysql
+  rabbitmq:
+    container_name: impala-rabbitmq
+    image: rabbitmq:3.9-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+volumes:
+  mysql_data:
+  gradle_cache:
