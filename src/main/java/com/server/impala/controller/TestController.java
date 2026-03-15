@@ -8,7 +8,6 @@ public class TestController {
 
     @GetMapping("/")
     public String index() {
-        return "Hot reloading idk12!";
+        return "This works again!";
     }
-
 }

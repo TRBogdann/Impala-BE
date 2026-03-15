@@ -36,7 +36,7 @@ public class User {
         return firstName;
     }
 
-    public Integer getId() {
+    public @Nullable Integer getId() {
         return id;
     }
 
@@ -64,7 +64,7 @@ public class User {
         this.firstName = firstName;
     }
 
-    public void setId(Integer id) {
+    public void setId(@Nullable Integer id) {
         this.id = id;
     }
 
