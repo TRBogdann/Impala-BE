@@ -26,7 +26,6 @@ services:
       - .env
     volumes:
       - ./:/var/www/app
-      - gradle_cache:/root/.gradle
     depends_on:
       - mysql
   mysql:
@@ -52,4 +51,3 @@ services:
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
 volumes:
   mysql_data:
-  gradle_cache:
