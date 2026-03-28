@@ -1,15 +1,18 @@
 package com.server.impala.entity;
 
 import java.time.LocalDateTime;
-import org.jspecify.annotations.Nullable;
+
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.jspecify.annotations.Nullable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -29,16 +32,22 @@ public class User {
     private String password;
 
     @Column(nullable = false)
-    private Boolean active;
+    private Boolean active = false;
 
     private String firstName;
     private String lastName;
 
+    @Column(nullable = false)
     private LocalDateTime lastSeen;
 
     @CreatedDate
     @Column(updatable = false, nullable = false)
     private LocalDateTime createdAt;
+    
+    @PrePersist
+    private void prePersist() {
+        this.lastSeen = this.createdAt;
+    }
 
     public @Nullable Long getId() {
         return id;
