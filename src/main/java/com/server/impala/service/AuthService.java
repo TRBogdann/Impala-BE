@@ -3,6 +3,7 @@ package com.server.impala.service;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.ResponseEntity;
@@ -11,10 +12,13 @@ import org.springframework.stereotype.Service;
 
 import com.server.impala.contract.AuthServiceInterface;
 import com.server.impala.entity.User;
+import com.server.impala.event.UserCreatedEvent;
 import com.server.impala.mapper.UserMapper;
 import com.server.impala.model.request.user.CreateUserModel;
 import com.server.impala.model.response.ApiResponse;
 import com.server.impala.repository.UserRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class AuthService implements AuthServiceInterface{
@@ -22,17 +26,20 @@ public class AuthService implements AuthServiceInterface{
     private final UserRepository userRepository;
     private final MessageSource messageSource;
     private final UserMapper userMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     public AuthService(
         PasswordEncoder passwordEncoder,
         UserRepository userRepository,
         MessageSource messageSource,
-        UserMapper userMapper
+        UserMapper userMapper,
+        ApplicationEventPublisher eventPublisher
     ){  
         this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
         this.messageSource = messageSource;
         this.userMapper = userMapper;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -67,10 +74,12 @@ public class AuthService implements AuthServiceInterface{
     }
 
     @Override
+    @Transactional
     public ResponseEntity<ApiResponse<?>> createUser(CreateUserModel createUserModel) {
         User newUser= this.userMapper.map(createUserModel, User.class);
         newUser.setPassword(this.encryptPassword(createUserModel.getPassword()));
-        this.userRepository.save(newUser);
+        newUser = this.userRepository.saveAndFlush(newUser);
+        eventPublisher.publishEvent(new UserCreatedEvent(newUser));
 
         return ResponseEntity.ok(
             new ApiResponse<>(
@@ -78,7 +87,5 @@ public class AuthService implements AuthServiceInterface{
                 messageSource.getMessage("user.message.await_confirmation", null, LocaleContextHolder.getLocale()),
                 null
         ));
-    }
-
-    
+    } 
 }
