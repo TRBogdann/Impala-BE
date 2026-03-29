@@ -11,6 +11,7 @@ services:
       - java-eclipse
     volumes:
       - ./src/main/resources/static:/var/www/app/static
+  
   java-eclipse:
     container_name: impala-java
     ports:
@@ -28,6 +29,8 @@ services:
       - ./:/var/www/app
     depends_on:
       - mysql
+      - mailcatcher
+  
   mysql:
     container_name: impala-mysql
     image: mysql:8.3.0
@@ -40,6 +43,7 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
+  
   rabbitmq:
     container_name: impala-rabbitmq
     image: rabbitmq:3.9-management
@@ -49,5 +53,14 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+  
+  mailcatcher:
+    image: schickling/mailcatcher
+    container_name: mailcatcher
+    ports:
+      - "1080:1080"
+    expose:
+      - 1025
+
 volumes:
   mysql_data:

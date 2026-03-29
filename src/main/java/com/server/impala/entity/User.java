@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import com.server.impala.listener.UserListener;
+
 import org.jspecify.annotations.Nullable;
 
 import jakarta.persistence.Column;
@@ -13,9 +16,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 
 @Entity
-@EntityListeners(AuditingEntityListener.class)
+@Table(name = "user")
+@EntityListeners({AuditingEntityListener.class, UserListener.class})
 public class User {
 
     @Id
